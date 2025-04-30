@@ -1,0 +1,346 @@
+/* Basic reset and body styling */
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden; /* Prevent scrollbars */
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    user-select: none; /* Prevent text selection */
+    -webkit-app-region: drag; /* Allow dragging the whole window by default */
+    background-color: transparent; /* Ensure body background is transparent */
+}
+
+/* Make the HTML background transparent */
+html {
+    background-color: transparent;
+}
+
+/* Main container - Rounded corners, background, and FLEX layout */
+#overlay-container {
+    display: flex;
+    align-items: center; /* Vertically center items */
+    width: 100%;
+    height: 100%;
+    background-color: rgba(20, 20, 20, 0.85); /* Darker, more modern look */
+    border-radius: 12px; /* More rounded */
+    padding: 6px; /* Slightly more padding */
+    box-sizing: border-box;
+    overflow: hidden;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+    transition: opacity 0.2s ease, background-color 0.2s ease;
+    border: none; /* Remove any border */
+    outline: none; /* Remove outline */
+    -webkit-backdrop-filter: blur(8px); /* More blur for a modern glass effect */
+}
+
+/* Handle unfocused window to make it look the same */
+.window-unfocused #overlay-container {
+    background-color: rgba(28, 28, 28, 0.85); /* Keep the same background */
+}
+
+/* Fix for outline/frame that might appear in unfocused state */
+body::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 10px;
+    box-shadow: inset 0 0 0 1px transparent; /* Transparent inset border */
+    z-index: 100;
+    pointer-events: none;
+}
+
+.window-unfocused body::before {
+    box-shadow: inset 0 0 0 1px transparent; /* Keep transparent in unfocused state */
+}
+
+/* Album art - Add shadow for depth */
+#album-art {
+    width: 38px;
+    height: 38px;
+    object-fit: cover;
+    border-radius: 8px; /* More rounded corners */
+    margin-right: 10px; /* More spacing */
+    flex-shrink: 0; /* Prevent image from shrinking */
+    background-color: #333; /* Darker Placeholder */
+    -webkit-app-region: no-drag; /* Don't drag when clicking image */
+    pointer-events: auto; /* Make sure image is clickable */
+    border: none; /* Remove any border */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+}
+
+/* Content area (text + slider) - Takes remaining space */
+#content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Center text block vertically */
+    min-width: 0; /* Critical for text ellipsis */
+    height: 100%; /* Fill vertical space */
+    padding-right: 4px; /* Space on the right */
+    border: none; /* Remove any border */
+}
+
+/* Text styling - Smaller */
+#song-title,
+#artist-name {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #e0e0e0; /* Slightly lighter text */
+    line-height: 1.2;
+}
+
+#song-title {
+    font-size: 11px; /* Smaller */
+    font-weight: 600; /* Semi-bold */
+    position: relative; /* For marquee effect */
+}
+
+#artist-name {
+    font-size: 9px; /* Smaller */
+    color: #a0a0a0; /* Lighter grey */
+}
+
+/* Marquee animation for song title */
+@keyframes marquee {
+    0% { transform: translateX(0); }
+    40% { transform: translateX(0); } /* Hold at start for 40% of animation time */
+    90% { transform: translateX(calc(-100% + 150px)); } /* Scroll to the left */
+    100% { transform: translateX(0); } /* Return to start */
+}
+
+.marquee-text {
+    display: inline-block;
+    padding-right: 50px; /* Add space after text */
+    animation: marquee 10s linear infinite; /* 10s duration, smooth linear timing, infinite loop */
+    will-change: transform; /* Performance optimization */
+}
+
+/* Pause animation on hover */
+.marquee-text:hover {
+    animation-play-state: paused;
+}
+
+/* Progress container - No background, just holds slider */
+#progress-container {
+    position: relative; /* Needed for absolute positioning of fill */
+    width: 100%;
+    height: 3px; /* Even thinner for cleaner look */
+    margin-top: 4px; /* Add space between text and slider */
+    border-radius: 1.5px; /* Match the height */
+    overflow: hidden;
+    -webkit-app-region: no-drag; /* Specifically make container non-draggable */
+    background-color: rgba(60, 60, 60, 0.35); /* More subtle background */
+    pointer-events: auto; /* Ensure clicks work in this area */
+    cursor: pointer; /* Show pointer cursor on hover */
+    border: none; /* Remove any border */
+    transition: height 0.15s ease, background-color 0.15s ease; /* Smooth transitions */
+    box-shadow: none; /* No shadow */
+}
+
+#progress-container:hover {
+    height: 5px; /* Expand slightly on hover for easier interaction */
+    background-color: rgba(70, 70, 70, 0.4); /* Slightly more visible on hover */
+}
+
+/* New: Style for the hover timestamp tooltip */
+#hover-tooltip {
+    position: absolute;
+    bottom: 12px; /* Position above the slider */
+    left: 50%; /* JS will adjust this precisely */
+    transform: translateX(-50%);
+    background-color: rgba(40, 40, 40, 0.95); /* Dark background */
+    color: #fff;
+    font-size: 9px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
+    opacity: 0; /* Hidden by default */
+    transition: opacity 0.1s ease-in-out;
+    pointer-events: none; /* Don't interfere with clicks */
+    z-index: 10;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Style for the visual progress fill */
+#progress-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 0%; /* JS will set this */
+    background-color: #1DB954; /* Spotify green */
+    border-radius: 1.5px;
+    pointer-events: none; /* Don't interfere with slider clicks */
+    box-shadow: 0 0 5px rgba(29, 185, 84, 0.5); /* Subtle glow effect */
+}
+
+/* Progress slider - Make track transparent, sits on top */
+#progress-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    position: absolute; /* Position on top of the container/fill */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: transparent; /* Make track transparent */
+    border-radius: 0;
+    outline: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    cursor: pointer; /* Show pointer cursor on hover */
+    pointer-events: auto; /* Ensure clicks work */
+    z-index: 10; /* Ensure it's on top */
+}
+
+/* Hide default thumb but ensure it's still interactive */
+#progress-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 12px; /* Larger invisible touch area */
+    height: 12px;
+    background: transparent;
+    cursor: pointer;
+}
+
+#progress-slider::-moz-range-thumb {
+    width: 12px; /* Larger invisible touch area */
+    height: 12px;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+}
+
+/* JS will apply progress via background gradient */
+
+/* Like Button Styling */
+#like-button {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%; /* Circular button */
+    background-color: rgba(50, 50, 50, 0.8);
+    color: white;
+    font-size: 15px;
+    line-height: 20px;
+    border: none;
+    cursor: pointer;
+    margin-left: 4px;
+    flex-shrink: 0;
+    -webkit-app-region: no-drag;
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    outline: none;
+}
+
+#like-button:hover {
+    background-color: rgba(100, 100, 100, 0.8);
+}
+
+#like-button:active {
+    background-color: rgba(60, 60, 60, 0.9);
+}
+
+#like-button.liked {
+    background-color: rgba(232, 30, 99, 0.8); /* Pink for liked state */
+    animation: like-pulse 0.6s ease-in-out;
+}
+
+/* Pulse animation for like button */
+@keyframes like-pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+}
+
+/* Suggestion Button Styling */
+#suggest-button {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%; /* Circular button */
+    background-color: rgba(50, 50, 50, 0.8);
+    color: white;
+    font-size: 13px;
+    line-height: 24px;
+    border: none;
+    cursor: pointer;
+    margin-left: 4px;
+    flex-shrink: 0;
+    -webkit-app-region: no-drag;
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    outline: none;
+}
+
+#suggest-button:hover {
+    background-color: rgba(100, 100, 100, 0.8);
+}
+
+#suggest-button:active {
+    background-color: rgba(60, 60, 60, 0.9);
+}
+
+#suggest-button.suggesting {
+    background-color: rgba(29, 185, 84, 0.8); /* Spotify green during suggestion */
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Pulse animation for suggesting state */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+    100% { transform: scale(1); }
+}
+
+/* Notification styling */
+.notification {
+    position: fixed;
+    top: 0px; /* Move further down from the top */
+    left: 50%;
+    transform: translateX(-50%) translateY(-100px); /* Start further above */
+    background-color: rgba(29, 185, 84, 0.9);
+    color: white;
+    padding: 8px 12px; /* Slightly reduced padding */
+    border-radius: 10px;
+    font-size: 11px; /* Smaller font size */
+    line-height: 1.2;
+    font-weight: 400;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    text-align: center;
+    max-width: 300px; /* Wider to prevent wrapping */
+    min-width: 180px;
+    white-space: nowrap; /* Keep text on one line */
+    text-overflow: ellipsis; /* Cut off with ... if too long */
+    overflow: hidden; /* Hide overflow */
+    transition: transform 0.2s ease, opacity 0.2s ease; /* Faster animation */
+    opacity: 0;
+    pointer-events: none;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.notification.visible {
+    opacity: 1;
+    transform: translateX(-50%) translateY(4px); /* Show a bit lower */
+    animation: notification-pulse 0.5s ease-in-out; /* Add pulse animation */
+}
+
+/* Add a subtle pulse animation for notifications */
+@keyframes notification-pulse {
+    0% { transform: translateX(-50%) translateY(4px) scale(0.95); }
+    50% { transform: translateX(-50%) translateY(4px) scale(1.05); }
+    100% { transform: translateX(-50%) translateY(4px) scale(1); }
+} 

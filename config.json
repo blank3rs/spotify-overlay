@@ -1,0 +1,4 @@
+{
+    "redirect_uri": "http://localhost:8888/callback",
+    "cache_path": "~/.spotify_caches"
+} 

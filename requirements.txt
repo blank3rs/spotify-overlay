@@ -1,0 +1,10 @@
+spotipy==2.23.0
+requests
+Pillow 
+openai
+openai-agents
+python-dotenv
+tiktoken
+bs4
+urllib3
+requests

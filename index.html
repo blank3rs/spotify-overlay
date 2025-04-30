@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Spotify Overlay</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="overlay-container">
+        <img id="album-art" src="" alt="Album Art" />
+        <div id="content">
+            <div id="song-title">No song playing</div>
+            <div id="artist-name"></div>
+            <div id="progress-container">
+                <div id="progress-fill"></div>
+                <input type="range" id="progress-slider" min="0" max="100" value="0">
+                <div id="hover-tooltip">0:00</div>
+            </div>
+        </div>
+        <button id="like-button">+</button>
+        <button id="suggest-button" title="Get similar song">≈</button>
+    </div>
+    <div id="suggestion-notification" class="notification"></div>
+    <script src="renderer.js"></script>
+</body>
+</html> 
